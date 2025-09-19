@@ -9,7 +9,7 @@ namespace Movement_Home_Task.Models
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
-        [BsonElement("Value")]
+        [BsonElement("Role")]
         public Role? Role { get; set; }
         [BsonElement("CreatedAt")]
         public DateTime CreatedAt { get; set; }

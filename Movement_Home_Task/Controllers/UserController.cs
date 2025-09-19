@@ -23,6 +23,7 @@ namespace Movement_Home_Task.Controllers
         }
 
         [HttpGet("{id}")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserById(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -41,7 +42,7 @@ namespace Movement_Home_Task.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [AllowAnonymous]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {

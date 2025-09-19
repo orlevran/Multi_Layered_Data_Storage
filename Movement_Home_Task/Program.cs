@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Movement_Home_Task.Configurations;
 using Microsoft.Extensions.Options;
 using Movement_Home_Task.Repositories;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +16,9 @@ builder.Services.AddControllers();
 
 builder.Services.AddLogging();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddSingleton<IStorageFactory, StorageFactory>();
-builder.Services.AddSingleton<IUserService, UserService>();
-builder.Services.AddSingleton<IAuthService, AuthService>();
+builder.Services.AddScoped<IStorageFactory, StorageFactory>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Redis
 var redis = builder.Configuration.GetSection("Redis");
@@ -82,6 +83,7 @@ builder.Services.AddAuthorization(options =>
 });
  
 var app = builder.Build();
+
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

@@ -50,7 +50,7 @@ namespace Movement_Home_Task.Services
             var claims = new List<Claim>
             {
                 new(JwtRegisteredClaimNames.Sub, user.Id!),
-                new(ClaimTypes.Role, (user.Role ?? Role.User).ToString()),
+                new(ClaimTypes.Role, user.Role.ToString()!),
                 new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
                 new("created_at", user.CreatedAt.ToUniversalTime().ToString("O")) // ISO-8601
             };
