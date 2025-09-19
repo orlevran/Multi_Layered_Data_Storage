@@ -1,0 +1,6 @@
+@Movement_Home_Task_HostAddress = http://localhost:5215
+
+GET {{Movement_Home_Task_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
