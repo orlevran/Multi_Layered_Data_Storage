@@ -82,8 +82,29 @@ builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
 });
- 
+
+// 1) Read allowed origins from config
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
+
+// 2) Register a named CORS policy
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowConfiguredOrigins", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)   // must match scheme+host+port exactly
+              .AllowAnyHeader()              // or .WithHeaders("Content-Type","Authorization")
+              .AllowAnyMethod()             // or .WithMethods("GET","POST","PUT","DELETE")
+              .SetPreflightMaxAge(TimeSpan.FromMinutes(10));             
+        // If you ever switch to cookie-based auth across origins, add:
+        // policy.AllowCredentials();  // (do NOT combine with AllowAnyOrigin)
+    });
+});
+
 var app = builder.Build();
+
+// CORS MUST run early
+app.UseCors("AllowConfiguredOrigins");
 
 app.UseAuthentication();
 app.UseAuthorization();
