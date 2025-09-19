@@ -25,18 +25,25 @@ namespace Movement_Home_Task.Persistence
                 throw new ArgumentNullException(nameof(id), "Identifier required for 'CacheStorage -> GetUserById'");
             }
 
-            // Construct a cache key using the identifier, prefixed with "user:" to namespace user objects.
-            string cacheKey = $"user:{id}";
-            // Attempt to retrieve the cached user data as a byte array using the cache key.
-            var cachedBytes = await cache.GetAsync(cacheKey);
+            try
+            {
+                // Construct a cache key using the identifier, prefixed with "user:" to namespace user objects.
+                string cacheKey = $"user:{id}";
+                // Attempt to retrieve the cached user data as a byte array using the cache key.
+                var cachedBytes = await cache.GetAsync(cacheKey);
 
-            // If no cached data is found, return null.
-            if (cachedBytes == null) { return null; }
+                // If no cached data is found, return null.
+                if (cachedBytes == null) { return null; }
 
-            // If cached data is found, deserialize the byte array into a User object.
-            var user = JsonSerializer.Deserialize<User>(cachedBytes);
+                // If cached data is found, deserialize the byte array into a User object.
+                var user = JsonSerializer.Deserialize<User>(cachedBytes);
 
-            return user;
+                return user;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         /// <summary>

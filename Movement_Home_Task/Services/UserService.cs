@@ -50,7 +50,7 @@ namespace Movement_Home_Task.Services
                 user = await file.GetUserById(id);
                 if (user != null)
                 {
-                    await file.StoreUser(user);
+                    await cache.StoreUser(user);
                     return user;
                 }
 

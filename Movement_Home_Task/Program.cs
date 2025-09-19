@@ -21,22 +21,23 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
 // Redis
-var redis = builder.Configuration.GetSection("Redis");
+builder.Services.Configure<RedisSettings>(builder.Configuration.GetSection("Redis"));
 
 builder.Services.AddStackExchangeRedisCache(o =>
 {
-    o.ConfigurationOptions = new StackExchange.Redis.ConfigurationOptions
+    var s = builder.Configuration.GetSection("Redis").Get<RedisSettings>()!;
+    o.ConfigurationOptions = new ConfigurationOptions
     {
-        EndPoints = { "redis-15572.c1.eu-west-1-3.ec2.redns.redis-cloud.com:15572" },
-        User = "default",
-        Password = "uETsSfrgvJfvrqOIXTPtdNiN62eAlKbr",
-        Ssl = false,
-        AbortOnConnectFail = false,
-        ResolveDns = true,
-        ConnectTimeout = 8000,
-        SyncTimeout = 8000
+        EndPoints = { { s.Host, s.Port } },
+        User = s.User,
+        Password = s.Password,
+        Ssl = s.Ssl,
+        AbortOnConnectFail = s.AbortOnConnectFail,
+        ResolveDns = s.ResolveDns,
+        ConnectTimeout = s.ConnectTimeout,
+        SyncTimeout = s.SyncTimeout
     };
-    o.InstanceName = "myapp:";
+    o.InstanceName = s.InstanceName ?? "myapp:";
 });
 
 // MongoDB
