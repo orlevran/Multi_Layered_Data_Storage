@@ -8,6 +8,8 @@ using MongoDB.Driver;                                   // Official MongoDB .NET
 using Microsoft.AspNetCore.Authentication.JwtBearer;    // JWT bearer middleware
 using Microsoft.Extensions.Options;                     // IOptions<T> pattern
 using StackExchange.Redis;                              // Redis ConfigurationOptions
+using Microsoft.OpenApi.Models;
+using System.Reflection;                              
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -129,6 +131,44 @@ builder.Services.AddCors(options =>
     });
 });
 
+/* ----------------Swagger: service registration ---------------- */
+
+// Exposes API endpoint metadata to Swagger generators (discovers Controllers/Minimal APIs)
+builder.Services.AddEndpointsApiExplorer();
+
+// Registers the Swagger/OpenAPI generator and lets us customize the spec & UI
+builder.Services.AddSwaggerGen(c =>
+{
+    // Defines a single OpenAPI document named "v1"
+    c.SwaggerDoc("v1", new()
+    {
+        Title = "Multi-Layered Data Storage API",           // UI title
+        Version = "v1",                                     // Document version (appears in UI)
+        Description = "Cache -> File -> DB with JWT auth"   // Short description
+    });
+
+    // Security: add a Bearer (JWT) scheme so the UI shows an "Authorize" button
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",                     // HTTP header name
+        In = ParameterLocation.Header,              // Where to send the token (request header)
+        Type = SecuritySchemeType.Http,             // HTTP auth scheme
+        Scheme = "bearer",
+        BearerFormat = "JWT",                       
+        Description = "Enter: Bearer {your token}"  // Helper text shown in the UI
+    });
+    
+    // Tells Swagger: every operation may use the "Bearer" scheme(shows lock icons; UI will attach token)
+    c.AddSecurityRequirement(new() {
+        { new() { Reference = new() { Type = ReferenceType.SecurityScheme, Id = "Bearer" } }, Array.Empty<string>() }
+    });
+
+    // XML comments (optional)
+    var xml = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xml);
+    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
+});
+
 var app = builder.Build();
 
 /* ----------------------------- Middleware Order (critical) ------------------- */
@@ -137,6 +177,13 @@ var app = builder.Build();
 app.UseCors("AllowConfiguredOrigins");
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Serves the generated OpenAPI JSON at /swagger/v1/swagger.json by default
+app.UseSwagger();
+app.UseSwaggerUI(o => {
+    // Points the UI to the JSON doc above and sets the UI title (left menu version label)
+    o.SwaggerEndpoint("/swagger/v1/swagger.json", "Multi-Layered Data Storage API v1");
+});
 
 // Endpoints: attribute-routed controllers are discovered here.
 app.MapControllers();
