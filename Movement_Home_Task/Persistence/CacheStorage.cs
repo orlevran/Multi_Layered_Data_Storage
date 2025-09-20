@@ -4,6 +4,11 @@ using Movement_Home_Task.Models;
 
 namespace Movement_Home_Task.Persistence
 {
+    // <summary>
+    /// Distributed cache-backed storage for 'User' entities.
+    /// Uses <see 'IDistributedCache' (e.g., Redis) to store and retrieve users
+    /// under keys prefixed with 'user:' and a default TTL of 10 minutes.
+    /// </summary>
     public class CacheStorage : IDataStorage
     {
         private readonly IDistributedCache cache;
@@ -13,11 +18,21 @@ namespace Movement_Home_Task.Persistence
         }
 
         /// <summary>
-        ///     Retrieves a User object from the distributed cache using the provided identifier (ID or email).
-        ///     Throws ArgumentNullException if the identifier is null or empty.
-        ///     If the user is found, refreshes the cache expiration and returns the User; otherwise, returns null.
+        /// Retrieves a 'User' from the distributed cache by identifier.
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="id">The user identifier used to construct the cache key.</param>
+        /// <returns>
+        /// The cached 'User' if present; otherwise null.
+        /// </returns>
+        /// <exception 'ArgumentNullException'
+        /// Thrown when id is null or empty.
+        /// </exception>
+        /// <remarks>
+        /// - Cache key format: user:{id}
+        /// - If the key is not found, returns null without throwing
+        /// - Any unexpected exceptions are swallowed and reported as null to
+        ///     keep cache lookup non-fatal in read paths.
+        /// </remarks>
         public async Task<User?> GetUserById(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -47,10 +62,18 @@ namespace Movement_Home_Task.Persistence
         }
 
         /// <summary>
-        ///     Stores a User object in the distributed cache using the user's ID as the key.
-        ///     Throws ArgumentNullException if the user is null.
-        ///     The cached entry expires after 10 minutes.
+        /// Stores a 'User' in the distributed cache with a 10-minute absolute expiration.
         /// </summary>
+        /// <param name="user">The User instance to cache.</param>
+        /// <returns>A task that completes when the value has been written to the cache.</returns>
+        /// <exception 'ArgumentNullException'
+        /// Thrown when user is null.
+        /// </exception>
+        /// <remarks>
+        /// - Cache key format: user:{user.Id}
+        /// - Absolute expiration: 10 minutes (no sliding refresh).
+        /// - Exceptions are logged to console but not rethrown to keep cache writes non-fatal.
+        /// </remarks>
         public async Task StoreUser(User user)
         {
 

@@ -34,15 +34,6 @@ namespace Movement_Home_Task.Persistence
                 StorageType.Database => new DatabaseStorage(repository),
                 _ => throw new ArgumentException("Invalid Storage type")
             };
-            /*
-            return type switch
-            {
-                StorageType.Cache => new CacheStorage(cache),
-                StorageType.File => new FileStorage(),
-                StorageType.Database => new DatabaseStorage(repository),
-                _ => throw new ArgumentException("Invalid Storage type")
-            };
-            */
 
             var layer = type.ToString().ToLowerInvariant();
             var inner = new LoggingStorageDecorator(_inner, loggerFactory.CreateLogger<LoggingStorageDecorator>(), layer);

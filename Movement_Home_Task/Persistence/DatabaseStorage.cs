@@ -5,6 +5,11 @@ using Movement_Home_Task.Repositories;
 
 namespace Movement_Home_Task.Persistence
 {
+    /// <summary>
+    /// Database-backed storage for 'User' entities.
+    /// Delegates reads and writes to the underlying IUserRepository (Repository pattern).
+    /// Implements an upsert-like behavior on store: update if the user exists; otherwise insert.
+    /// </summary>
     public class DatabaseStorage : IDataStorage
     {
         private readonly IUserRepository usersRepository;

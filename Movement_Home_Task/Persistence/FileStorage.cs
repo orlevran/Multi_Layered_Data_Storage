@@ -3,6 +3,12 @@ using Movement_Home_Task.Models;
 
 namespace Movement_Home_Task.Persistence
 {
+    /// <summary>
+    /// File-backed storage for 'User' entities.
+    /// Persists users to a JSON file UsersStorage.json located under the app base directory.
+    /// Uses a simple timestamped list KeyValuePair{TKey, TValue} of {User, DateTime})
+    /// to support a 30-minute freshness window on reads.
+    /// </summary>
     public class FileStorage : IDataStorage
     {
         private readonly string filePath;
